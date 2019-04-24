@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -13,6 +12,5 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:hint="@string/name_input"
-        android:autofillHints="@string/name_input"
-        tools:ignore="UnusedAttribute" />
+        android:autofillHints="@string/name_input"/>
 </LinearLayout>
