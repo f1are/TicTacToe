@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         LayoutInflater inflater = getLayoutInflater();
 
-        builder.setView(inflater.inflate(R.layout.alert_view, initnull));
+        builder.setView(inflater.inflate(R.layout.alert_view, null));
 
         builder.setMessage("Welcome Player, enter your name").setTitle("Your Name");
 
