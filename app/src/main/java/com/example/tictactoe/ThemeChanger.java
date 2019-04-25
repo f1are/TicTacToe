@@ -2,16 +2,16 @@ package com.example.tictactoe;
 
 import android.app.Activity;
 
-public class ThemeChanger {
+public final class ThemeChanger {
 
     private static final int DARK_THEME = 1;
     private static int PREF_THEME = 0;
 
     /**
      * Get the current Theme
-     * @param activity
+     * @param activity activity to change
      */
-    public void getTheme(Activity activity){
+    static void getTheme(Activity activity){
 
         if(PREF_THEME != DARK_THEME){
             activity.setTheme(R.style.AppTheme);
@@ -23,17 +23,17 @@ public class ThemeChanger {
 
     /**
      * Set prefered theme : '0' = light; '1' = dark;
-     * @param theme
+     * @param theme theme id to set
      */
-    public void setPrefTheme(int theme){
+    static void setPrefTheme(int theme){
         PREF_THEME = theme;
     }
 
     /**
      * Get preferred theme
-     * @return
+     * @return the saved prefered theme
      */
-    public int getPrefTheme(){
+    public static int getPrefTheme(){
         return  PREF_THEME;
     }
 }

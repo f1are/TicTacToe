@@ -22,7 +22,6 @@ public class  MainActivity extends AppCompatActivity {
 
     String username;
     public static final String EXTRA_USERNAME = "com.example.tictactoe.USERNAME";
-    public static final String EXTRA_THEME_ID = "com.example.tictactoe.THEME";
 
     TextView welcomeText;
 
@@ -30,15 +29,13 @@ public class  MainActivity extends AppCompatActivity {
     Button startGameButton;
 
     CheckBox themeCheckBox;
-    ThemeChanger themeChanger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        themeChanger = new ThemeChanger();
-        themeChanger.getTheme(this);
 
+        ThemeChanger.getTheme(this);
         setContentView(R.layout.activity_main);
 
 
@@ -92,10 +89,10 @@ public class  MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(themeCheckBox.isChecked()){
-                    themeChanger.setPrefTheme(1);
+                    ThemeChanger.setPrefTheme(1);
                 }
                 else{
-                    themeChanger.setPrefTheme(0);
+                    ThemeChanger.setPrefTheme(0);
                 }
 
                 MainActivity.this.recreate();
@@ -116,7 +113,6 @@ public class  MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), GameActivity.class);
                 intent.putExtra(EXTRA_USERNAME, username);
-                intent.putExtra(EXTRA_THEME_ID, themeChanger.getPrefTheme());
                 startActivity(intent);
             }
         });
