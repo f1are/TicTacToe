@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,24 +21,23 @@ public class  MainActivity extends AppCompatActivity {
 
 
     String username;
+    public static final String EXTRA_USERNAME = "com.example.tictactoe.USERNAME";
+    public static final String EXTRA_THEME_ID = "com.example.tictactoe.THEME";
+
     TextView welcomeText;
 
     Button changeNameButton;
+    Button startGameButton;
 
     CheckBox themeCheckBox;
-    private static final int DARK_THEME = 1;
-    private static int PREF_THEME = 0;
+    ThemeChanger themeChanger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(PREF_THEME != DARK_THEME){
-            setTheme(R.style.AppTheme);
-        }
-        else{
-            setTheme(R.style.Theme_AppCompat);
-        }
+        themeChanger = new ThemeChanger();
+        themeChanger.getTheme(this);
 
         setContentView(R.layout.activity_main);
 
@@ -91,10 +92,10 @@ public class  MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(themeCheckBox.isChecked()){
-                    PREF_THEME = 1;
+                    themeChanger.setPrefTheme(1);
                 }
                 else{
-                    PREF_THEME = 0;
+                    themeChanger.setPrefTheme(0);
                 }
 
                 MainActivity.this.recreate();
@@ -102,11 +103,21 @@ public class  MainActivity extends AppCompatActivity {
         });
 
         changeNameButton = findViewById(R.id.changeName_Button);
-
         changeNameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 buildAlertDialog();
+            }
+        });
+
+        startGameButton = findViewById(R.id.startGame_Button);
+        startGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), GameActivity.class);
+                intent.putExtra(EXTRA_USERNAME, username);
+                intent.putExtra(EXTRA_THEME_ID, themeChanger.getPrefTheme());
+                startActivity(intent);
             }
         });
     }
