@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">TicTacToe</string>
     <string name="name_input">Enter your name</string>
+    <string name="user_name">Name</string>
     <string name="welcome_text">Hi %1$s, welcome back!</string>
     <string name="start_game_button">Start Game</string>
     <string name="change_name_button">Change Name</string>
     <string name="change_theme_check">Dark Mode</string>
+    <string name="game_title">Tic Tac Toe</string>
+    <string name="ai_name">Super AI</string>
 </resources>
