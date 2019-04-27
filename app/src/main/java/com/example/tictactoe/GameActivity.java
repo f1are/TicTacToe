@@ -8,9 +8,11 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.Image;
+import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +22,10 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -32,8 +37,45 @@ public class GameActivity extends AppCompatActivity {
 
     ImageView[][] gameBoard;
     static int[][] gameBoardValues;
+    boolean gameOver = false;
 
     static boolean playerturn;
+
+    AI ai = new AI();
+
+    private final int ROW = 0;
+    private final int COLUMN = 1;
+
+    static List<Vector<Integer>> freeTilesList = new ArrayList<>();
+
+    Handler handler = new Handler();
+
+    final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if(!playerturn && !gameOver) {
+                int[] aiTile = ai.makeMove(GameActivity.this, gameBoard, gameBoardValues);
+
+                Vector vector = new Vector();
+                vector.add(aiTile[ROW]);
+                vector.add(aiTile[COLUMN]);
+
+                Log.d("removed", "run: " + vector);
+
+                freeTilesList.remove(vector);
+                for(int i = 0; i < freeTilesList.size(); i++){
+                    Log.d("Listrunnable", "setSymbol: " + freeTilesList.toArray()[i]);
+
+                }
+
+                checkForWin(gameBoardValues, aiTile, aiName.getText().toString());
+
+                aiName.setTextColor(getResources().getColor(R.color.colorPrimary));
+                usernameTV.setTextColor(Color.CYAN);
+                playerturn = true;
+            }
+        }
+    };
 
 
     @Override
@@ -55,10 +97,21 @@ public class GameActivity extends AppCompatActivity {
 
         initializeGameBoard();
 
-        decideFirstMover();
-
         gameBoardValues = new int[3][3];
 
+        freeTilesList.clear();
+        for(int i = 0; i < gameBoard.length; i++){
+            for(int j = 0; j < gameBoard[i].length; j++){
+                if(gameBoardValues[i][j] == 0){
+                    Vector<Integer> freeTile = new Vector<>();
+                    freeTile.add(i);
+                    freeTile.add(j);
+                    freeTilesList.add(freeTile);
+                }
+            }
+        }
+
+        decideFirstMover();
     }
 
     /**
@@ -97,25 +150,28 @@ public class GameActivity extends AppCompatActivity {
      * @param counterJ column index of current field
      */
     void setSymbol(int counterI, int counterJ){
-        if (playerturn){
+        if(playerturn && !gameOver) {
             gameBoard[counterI][counterJ].setImageDrawable(getResources().getDrawable(R.drawable.x));
             gameBoardValues[counterI][counterJ] = 1;
 
-            checkForWin(gameBoardValues, counterI, counterJ, username);
+            Vector vector = new Vector();
+            vector.add(counterI);
+            vector.add(counterJ);
+
+            freeTilesList.remove(vector);
+            Log.d("removed", "setSymbol: " + vector);
+
+            checkForWin(gameBoardValues, new int[]{counterI, counterJ}, username);
 
             usernameTV.setTextColor(getResources().getColor(R.color.colorPrimary));
             aiName.setTextColor(Color.CYAN);
-            playerturn = !playerturn;
-        }
-        else{
-            gameBoard[counterI][counterJ].setImageDrawable(getResources().getDrawable(R.drawable.o));
-            gameBoardValues[counterI][counterJ] = -1;
+            playerturn = false;
+            handler.postDelayed(runnable, 2000);
 
-            checkForWin(gameBoardValues, counterI, counterJ, aiName.getText().toString());
+            for(int i = 0; i < freeTilesList.size(); i++){
+                Log.d("Listplayer", "setSymbol: " + freeTilesList.toArray()[i]);
 
-            aiName.setTextColor(getResources().getColor(R.color.colorPrimary));
-            usernameTV.setTextColor(Color.CYAN);
-            playerturn = !playerturn;
+            }
         }
     }
 
@@ -131,49 +187,54 @@ public class GameActivity extends AppCompatActivity {
         else{
             playerturn = false;
             aiName.setTextColor(Color.CYAN);
+            handler.post(runnable);
         }
     }
 
     /**
      * Check board for a winning trio
      * @param gameBoardValues gameboardarray with values
-     * @param counterI  current row index of field
-     * @param counterJ current column index of field
+     * @param tile int[] of tile coordinates
      * @param name name of current player
      */
-    void checkForWin(int[][] gameBoardValues, int counterI, int counterJ, String name){
-
-        //Horizontal
-        int horizontalResult = 0;
-        for (int j = 0; j < gameBoardValues[counterI].length; j++){
-            horizontalResult += gameBoardValues[counterI][j];
-        }
-        checkWinner(horizontalResult, name);
-
-        //Vertical
-        int verticalResult = 0;
-        for(int i = 0; i < gameBoardValues.length; i++){
-            verticalResult += gameBoardValues[i][counterJ];
-        }
-        checkWinner(verticalResult, name);
-
-        //Diagonal
-        int diagResult = 0;
-        if(counterI == counterJ){
-            for (int i = 0; i < gameBoardValues.length; i++){
-                diagResult += gameBoardValues[i][i];
+    void checkForWin(int[][] gameBoardValues, int[] tile, String name){
+        if(!freeTilesList.isEmpty()) {
+            //Horizontal
+            int horizontalResult = 0;
+            for (int j = 0; j < gameBoardValues[tile[ROW]].length; j++) {
+                horizontalResult += gameBoardValues[tile[ROW]][j];
             }
-        }
-        checkWinner(diagResult, name);
+            checkWinner(horizontalResult, name);
 
-        //Anti-diagonal
-        int antiDiagResult = 0;
-        if(counterI + counterJ == gameBoardValues.length-1){
-            for (int i = 0; i < gameBoardValues.length; i++){
-                antiDiagResult += gameBoardValues[i][gameBoardValues.length-i-1];
+            //Vertical
+            int verticalResult = 0;
+            for (int i = 0; i < gameBoardValues.length; i++) {
+                verticalResult += gameBoardValues[i][tile[COLUMN]];
             }
+            checkWinner(verticalResult, name);
+
+            //Diagonal
+            int diagResult = 0;
+            if (tile[ROW] == tile[COLUMN]) {
+                for (int i = 0; i < gameBoardValues.length; i++) {
+                    diagResult += gameBoardValues[i][i];
+                }
+            }
+            checkWinner(diagResult, name);
+
+            //Anti-diagonal
+            int antiDiagResult = 0;
+            if (tile[ROW] + tile[COLUMN] == gameBoardValues.length - 1) {
+                for (int i = 0; i < gameBoardValues.length; i++) {
+                    antiDiagResult += gameBoardValues[i][gameBoardValues.length - i - 1];
+                }
+            }
+            checkWinner(antiDiagResult, name);
         }
-        checkWinner(antiDiagResult, name);
+        else{
+            gameOver = true;
+            showGameOverDialog("Nobody");
+        }
     }
 
     /**
