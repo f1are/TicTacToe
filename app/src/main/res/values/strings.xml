@@ -8,4 +8,5 @@
     <string name="change_theme_check">Dark Mode</string>
     <string name="game_title">Tic Tac Toe</string>
     <string name="ai_name">Super AI</string>
+    <string name="loading_text">Please wait.</string>
 </resources>

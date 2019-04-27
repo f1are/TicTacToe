@@ -2,25 +2,17 @@ package com.example.tictactoe;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Handler;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,16 +24,16 @@ public class GameActivity extends AppCompatActivity {
     private String username;
 
     TextView usernameTV;
-    TextView aiName;
     TextView gameTitle;
+    ImageView loadingIcon;
 
     ImageView[][] gameBoard;
-    static int[][] gameBoardValues;
+    int[][] gameBoardValues;
     boolean gameOver = false;
 
-    static boolean playerturn;
+    boolean playerturn;
 
-    AI ai = new AI();
+    AI ai;
 
     private final int ROW = 0;
     private final int COLUMN = 1;
@@ -50,30 +42,55 @@ public class GameActivity extends AppCompatActivity {
 
     Handler handler = new Handler();
 
-    final Runnable runnable = new Runnable() {
+    final Runnable aiMoveRunnable = new Runnable() {
         @Override
         public void run() {
             if(!playerturn && !gameOver) {
-                int[] aiTile = ai.makeMove(GameActivity.this, gameBoard, gameBoardValues);
+                int[] aiTile = ai.makeMove(gameBoard, gameBoardValues);
+
+                checkForWin(gameBoardValues, aiTile, ai.getName());
 
                 Vector vector = new Vector();
                 vector.add(aiTile[ROW]);
                 vector.add(aiTile[COLUMN]);
 
-                Log.d("removed", "run: " + vector);
-
                 freeTilesList.remove(vector);
-                for(int i = 0; i < freeTilesList.size(); i++){
-                    Log.d("Listrunnable", "setSymbol: " + freeTilesList.toArray()[i]);
 
-                }
 
-                checkForWin(gameBoardValues, aiTile, aiName.getText().toString());
-
-                aiName.setTextColor(getResources().getColor(R.color.colorPrimary));
+                ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorPrimary));
                 usernameTV.setTextColor(Color.CYAN);
                 playerturn = true;
+                handler.post(closeAIDialog);
             }
+        }
+    };
+
+    final Runnable showAIDialog = new Runnable() {
+        @Override
+        public void run() {
+            if(!gameOver) {
+                ai.showAITurnDialog();
+                handler.postDelayed(aiMoveRunnable, ai.getRandomThinkingTime() * 1000);
+                handler.post(animateLoadingIcon);
+            }
+        }
+    };
+
+    final Runnable animateLoadingIcon = new Runnable() {
+        @Override
+        public void run() {
+            /*ImageView loadingIcon = loadingDialog.findViewById(R.id.loadingIcon);
+            loadingIcon.animate().rotation(20.0f).setInterpolator(new DecelerateInterpolator()).start();
+            handler.post(this);
+            */
+        }
+    };
+
+    final Runnable closeAIDialog = new Runnable() {
+        @Override
+        public void run() {
+            ai.closeAITurnDialog();
+            handler.removeCallbacks(animateLoadingIcon);
         }
     };
 
@@ -91,9 +108,10 @@ public class GameActivity extends AppCompatActivity {
         usernameTV = findViewById(R.id.playername);
         usernameTV.setText(username);
 
-        aiName = findViewById(R.id.ainame);
 
         gameTitle = findViewById(R.id.gameTitle);
+
+        loadingIcon = findViewById(R.id.loadingIcon);
 
         initializeGameBoard();
 
@@ -110,6 +128,8 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
         }
+
+         ai = new AI(GameActivity.this);
 
         decideFirstMover();
     }
@@ -154,24 +174,18 @@ public class GameActivity extends AppCompatActivity {
             gameBoard[counterI][counterJ].setImageDrawable(getResources().getDrawable(R.drawable.x));
             gameBoardValues[counterI][counterJ] = 1;
 
+            checkForWin(gameBoardValues, new int[]{counterI, counterJ}, username);
+
             Vector vector = new Vector();
             vector.add(counterI);
             vector.add(counterJ);
 
             freeTilesList.remove(vector);
-            Log.d("removed", "setSymbol: " + vector);
-
-            checkForWin(gameBoardValues, new int[]{counterI, counterJ}, username);
 
             usernameTV.setTextColor(getResources().getColor(R.color.colorPrimary));
-            aiName.setTextColor(Color.CYAN);
+            ai.getAiNameTV().setTextColor(Color.CYAN);
             playerturn = false;
-            handler.postDelayed(runnable, 2000);
-
-            for(int i = 0; i < freeTilesList.size(); i++){
-                Log.d("Listplayer", "setSymbol: " + freeTilesList.toArray()[i]);
-
-            }
+            handler.post(showAIDialog);
         }
     }
 
@@ -186,8 +200,8 @@ public class GameActivity extends AppCompatActivity {
         }
         else{
             playerturn = false;
-            aiName.setTextColor(Color.CYAN);
-            handler.post(runnable);
+            ai.getAiNameTV().setTextColor(Color.CYAN);
+            handler.post(showAIDialog);
         }
     }
 
@@ -245,6 +259,7 @@ public class GameActivity extends AppCompatActivity {
     void checkWinner(int result, String name){
         if(result == 3 || result == -3){
             showGameOverDialog(name);
+            gameOver = true;
         }
     }
 
@@ -276,4 +291,6 @@ public class GameActivity extends AppCompatActivity {
         });
         builder.create().show();
     }
+
+
 }
