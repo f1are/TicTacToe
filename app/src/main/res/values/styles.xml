@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -6,6 +6,18 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowEnterTransition" tools:targetApi="lollipop">@android:transition/explode</item>
+        <item name="android:windowExitTransition" tools:targetApi="lollipop">@android:transition/explode</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppDarkTheme" parent="Theme.AppCompat">
+        <!-- Customize your theme here. -->
+        <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowEnterTransition" tools:targetApi="lollipop">@android:transition/explode</item>
+        <item name="android:windowExitTransition" tools:targetApi="lollipop">@android:transition/explode</item>
     </style>
 
 </resources>
