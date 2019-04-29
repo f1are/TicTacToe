@@ -60,6 +60,7 @@ public class GameActivity extends AppCompatActivity {
 
                 freeTilesList.remove(vector);
 
+                checkForTie();
 
                 ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorPrimary));
                 usernameTV.setTextColor(getResources().getColor(R.color.colorAccent));
@@ -177,6 +178,8 @@ public class GameActivity extends AppCompatActivity {
 
             freeTilesList.remove(vector);
 
+            checkForTie();
+
             usernameTV.setTextColor(getResources().getColor(R.color.colorPrimary));
             ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorAccent));
             playerturn = false;
@@ -209,9 +212,6 @@ public class GameActivity extends AppCompatActivity {
      * @param name name of current player
      */
     void checkForWin(int[][] gameBoardValues, int[] tile, String name){
-        for(int i = 0; i < freeTilesList.size(); i++) {
-            Log.d("freetilelist", "checkForWin: " + freeTilesList.toArray()[i]);
-        }
         if(!freeTilesList.isEmpty()) {
             //Horizontal
             int horizontalResult = 0;
@@ -245,7 +245,13 @@ public class GameActivity extends AppCompatActivity {
             }
             checkWinner(antiDiagResult, name);
         }
-        else{
+    }
+
+    /**
+     * Checks if a tie occurred
+     */
+    void checkForTie(){
+        if(freeTilesList.isEmpty()) {
             gameOver = true;
             showGameOverDialog("Nobody");
         }
