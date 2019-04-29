@@ -22,7 +22,7 @@ import java.util.Vector;
 
 public class GameActivity extends AppCompatActivity {
 
-    private String username = "Player";
+    private String username;
 
     TextView usernameTV;
     TextView gameTitle;
