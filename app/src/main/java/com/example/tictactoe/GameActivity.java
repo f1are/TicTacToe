@@ -41,6 +41,9 @@ public class GameActivity extends AppCompatActivity {
 
     static List<Vector<Integer>> freeTilesList = new ArrayList<>();
 
+    long startTime;
+    long playerThinkingTime;
+
     Handler handler = new Handler();
 
     final Runnable aiMoveRunnable = new Runnable() {
@@ -59,9 +62,11 @@ public class GameActivity extends AppCompatActivity {
 
 
                 ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorPrimary));
-                usernameTV.setTextColor(Color.CYAN);
+                usernameTV.setTextColor(getResources().getColor(R.color.colorAccent));
                 playerturn = true;
+                startTime = System.currentTimeMillis();
                 handler.post(closeAIDialog);
+
             }
         }
     };
@@ -173,8 +178,9 @@ public class GameActivity extends AppCompatActivity {
             freeTilesList.remove(vector);
 
             usernameTV.setTextColor(getResources().getColor(R.color.colorPrimary));
-            ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+            ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorAccent));
             playerturn = false;
+            playerThinkingTime += System.currentTimeMillis() - startTime;
             handler.post(showAIDialog);
         }
     }
@@ -186,11 +192,12 @@ public class GameActivity extends AppCompatActivity {
         int random = new Random().nextInt(2);
         if(random <= 0){
             playerturn = true;
-            usernameTV.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+            usernameTV.setTextColor(getResources().getColor(R.color.colorAccent));
+            startTime = System.currentTimeMillis();
         }
         else{
             playerturn = false;
-            ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+            ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorAccent));
             handler.post(showAIDialog);
         }
     }
@@ -266,8 +273,8 @@ public class GameActivity extends AppCompatActivity {
 
         builder.setView(inflater.inflate(R.layout.game_over, null));
 
-        builder.setMessage(winner + " has won.")
-                .setTitle("Game Over")
+        builder.setMessage("Player thinking time: " + playerThinkingTime/1000/60 + "m " + playerThinkingTime/1000%60 + "s " + playerThinkingTime%1000 +"ms")
+                .setTitle(winner + " has won")
                 .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
