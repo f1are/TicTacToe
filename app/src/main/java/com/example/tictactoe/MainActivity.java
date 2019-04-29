@@ -23,7 +23,7 @@ import android.widget.TextView;
 public class  MainActivity extends AppCompatActivity {
 
 
-    String username;
+    String username = "Player";
     public static final String EXTRA_USERNAME = "com.example.tictactoe.USERNAME";
 
     TextView welcomeText;
