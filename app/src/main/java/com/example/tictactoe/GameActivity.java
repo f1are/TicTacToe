@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -22,7 +23,7 @@ import java.util.Vector;
 
 public class GameActivity extends AppCompatActivity {
 
-    private String username;
+    Player player = new Player();
 
     TextView usernameTV;
     TextView gameTitle;
@@ -42,7 +43,6 @@ public class GameActivity extends AppCompatActivity {
     static List<Vector<Integer>> freeTilesList = new ArrayList<>();
 
     long startTime;
-    long playerThinkingTime;
 
     Handler handler = new Handler();
 
@@ -95,13 +95,13 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        username = intent.getStringExtra(MainActivity.EXTRA_USERNAME);
+        player.setName(intent.getStringExtra(MainActivity.EXTRA_USERNAME));
 
         ThemeChanger.getTheme(this);
         setContentView(R.layout.activity_game);
 
         usernameTV = findViewById(R.id.playername);
-        usernameTV.setText(username);
+        usernameTV.setText(player.getName());
 
 
         gameTitle = findViewById(R.id.gameTitle);
@@ -169,7 +169,7 @@ public class GameActivity extends AppCompatActivity {
             gameBoard[counterI][counterJ].setImageDrawable(getResources().getDrawable(R.drawable.x));
             gameBoardValues[counterI][counterJ] = 1;
 
-            checkForWin(gameBoardValues, new int[]{counterI, counterJ}, username);
+            checkForWin(gameBoardValues, new int[]{counterI, counterJ}, player.getName());
 
             Vector vector = new Vector();
             vector.add(counterI);
@@ -180,7 +180,7 @@ public class GameActivity extends AppCompatActivity {
             usernameTV.setTextColor(getResources().getColor(R.color.colorPrimary));
             ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorAccent));
             playerturn = false;
-            playerThinkingTime += System.currentTimeMillis() - startTime;
+            player.setThinkingTime(player.getThinkingTime() + System.currentTimeMillis() - startTime);
             handler.post(showAIDialog);
         }
     }
@@ -209,6 +209,9 @@ public class GameActivity extends AppCompatActivity {
      * @param name name of current player
      */
     void checkForWin(int[][] gameBoardValues, int[] tile, String name){
+        for(int i = 0; i < freeTilesList.size(); i++) {
+            Log.d("freetilelist", "checkForWin: " + freeTilesList.toArray()[i]);
+        }
         if(!freeTilesList.isEmpty()) {
             //Horizontal
             int horizontalResult = 0;
@@ -273,7 +276,7 @@ public class GameActivity extends AppCompatActivity {
 
         builder.setView(inflater.inflate(R.layout.game_over, null));
 
-        builder.setMessage("Player thinking time: " + playerThinkingTime/1000/60 + "m " + playerThinkingTime/1000%60 + "s " + playerThinkingTime%1000 +"ms")
+        builder.setMessage("Player thinking time: " + player.getThinkingTimeM() + "m " + player.getThinkingTimeS() + "s " + player.getThinkingTimeMs() +"ms")
                 .setTitle(winner + " has won")
                 .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
                     @Override

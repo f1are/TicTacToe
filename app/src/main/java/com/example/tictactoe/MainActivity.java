@@ -7,12 +7,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -23,7 +20,7 @@ import android.widget.TextView;
 public class  MainActivity extends AppCompatActivity {
 
 
-    String username = "Player";
+    Player player = new Player();
     public static final String EXTRA_USERNAME = "com.example.tictactoe.USERNAME";
 
     TextView welcomeText;
@@ -71,8 +68,8 @@ public class  MainActivity extends AppCompatActivity {
                         EditText nameInput;
 
                         nameInput = dia.findViewById(R.id.username);
-                        username = nameInput.getText().toString();
-                        welcomeText.setText(String.format(getResources().getString(R.string.welcome_text),username));
+                        player.setName(nameInput.getText().toString());
+                        welcomeText.setText(String.format(getResources().getString(R.string.welcome_text),player.getName()));
                     }
                 });
         builder.create().show();
@@ -116,7 +113,7 @@ public class  MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), GameActivity.class);
-                intent.putExtra(EXTRA_USERNAME, username);
+                intent.putExtra(EXTRA_USERNAME, player.getName());
                 startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
             }
         });
