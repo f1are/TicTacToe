@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -71,26 +72,15 @@ public class GameActivity extends AppCompatActivity {
             if(!gameOver) {
                 ai.showAITurnDialog();
                 handler.postDelayed(aiMoveRunnable, ai.getRandomThinkingTime() * 1000);
-                handler.post(animateLoadingIcon);
             }
         }
     };
 
-    final Runnable animateLoadingIcon = new Runnable() {
-        @Override
-        public void run() {
-            /*ImageView loadingIcon = loadingDialog.findViewById(R.id.loadingIcon);
-            loadingIcon.animate().rotation(20.0f).setInterpolator(new DecelerateInterpolator()).start();
-            handler.post(this);
-            */
-        }
-    };
 
     final Runnable closeAIDialog = new Runnable() {
         @Override
         public void run() {
             ai.closeAITurnDialog();
-            handler.removeCallbacks(animateLoadingIcon);
         }
     };
 
@@ -183,7 +173,7 @@ public class GameActivity extends AppCompatActivity {
             freeTilesList.remove(vector);
 
             usernameTV.setTextColor(getResources().getColor(R.color.colorPrimary));
-            ai.getAiNameTV().setTextColor(Color.CYAN);
+            ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorPrimaryDark));
             playerturn = false;
             handler.post(showAIDialog);
         }
@@ -196,11 +186,11 @@ public class GameActivity extends AppCompatActivity {
         int random = new Random().nextInt(2);
         if(random <= 0){
             playerturn = true;
-            usernameTV.setTextColor(Color.CYAN);
+            usernameTV.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
         }
         else{
             playerturn = false;
-            ai.getAiNameTV().setTextColor(Color.CYAN);
+            ai.getAiNameTV().setTextColor(getResources().getColor(R.color.colorPrimaryDark));
             handler.post(showAIDialog);
         }
     }
